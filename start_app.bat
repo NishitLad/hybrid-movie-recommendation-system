@@ -14,7 +14,7 @@ if not exist venv (
 )
 
 echo [2/2] Launching MovieFlix Premium (Port 8000)...
-start "MovieFlix Backend" /min cmd /c ".\venv\Scripts\python -m uvicorn backend.main:app --port 8000 --reload"
+start "MovieFlix Backend" /min cmd /c ".\venv\Scripts\python -m uvicorn backend.app.main:app --port 8000 --reload"
 
 echo ==================================================
 echo ✅ SYSTEM OPERATIONAL
