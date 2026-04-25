@@ -1,0 +1,14 @@
+INFO:     Started server process [19364]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:29078 - "HEAD /tmdb/search?query=Inception HTTP/1.1" 404 Not Found
+2026-04-10 14:43:00,467 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=Inception&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:29078 - "GET /tmdb/search?query=Inception HTTP/1.1" 200 OK
+INFO:     127.0.0.1:29086 - "HEAD /recommendations/nishit HTTP/1.1" 404 Not Found
+2026-04-10 14:43:06,188 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/popular?language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:29086 - "GET /recommendations/nishit HTTP/1.1" 200 OK
+INFO:     127.0.0.1:1834 - "POST /signup HTTP/1.1" 200 OK
+INFO:     127.0.0.1:1851 - "POST /login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:1889 - "HEAD /style.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:1889 - "GET /style.css HTTP/1.1" 200 OK

@@ -1,0 +1,222 @@
+C:\Users\bhoomik\Desktop\last project - Copy\movie-rec\main.py:22: FutureWarning: 
+
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+INFO:     Started server process [22904]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:60230 - "GET / HTTP/1.1" 304 Not Modified
+C:\Users\bhoomik\Desktop\last project - Copy\movie-rec\main.py:915: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  age = datetime.utcnow() - ts
+TF-IDF recommendation error: 404: Title not found in local dataset: 'The Great Game'
+INFO:     127.0.0.1:60230 - "GET /dashboard/ladnishit HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60230 - "GET /movie/id/166883 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:22083 - "GET /movie/ai-insight/166883?username=ladnishit HTTP/1.1" 200 OK
+TF-IDF recommendation error: 404: Title not found in local dataset: 'The Great Game'
+INFO:     127.0.0.1:41943 - "GET /dashboard/ladnishit HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41943 - "GET /movie/id/166883 HTTP/1.1" 200 OK
+C:\Users\bhoomik\Desktop\last project - Copy\movie-rec\main.py:1868: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  now = datetime.utcnow().isoformat()
+2026-04-11 23:14:48,227 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/person?query=Andy+Samberg&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+C:\Users\bhoomik\Desktop\last project - Copy\movie-rec\main.py:255: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  (cache_key, json.dumps(data), datetime.utcnow().isoformat()))
+2026-04-11 23:14:48,525 - INFO - HTTP Request: GET https://api.themoviedb.org/3/discover/movie?with_cast=62861&sort_by=vote_count.desc&include_adult=false&language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:14:48,807 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=Palm+Springs&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:14:49,081 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/587792?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:14:49,404 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/76492?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:14:49,682 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/22794?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:14:49,708 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/195589?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:14:49,736 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/585083?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:14:49,751 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/50544?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:14:49,780 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/109451?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:14:49,805 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/350?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:14:49,823 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/400155?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:14:49,848 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/87428?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:14:49,882 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/16538?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:14:49,896 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/80035?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:14:49,925 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/420821?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:14:49,954 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/63492?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:14:49,971 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/569094?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:14:49,996 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/1035259?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:14:50,024 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/341012?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:14:50,038 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/1084242?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:14:50,052 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/1084242?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:14:50,069 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/1198994?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:14:50,096 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/329505?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:14:50,113 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/332210?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:14:50,130 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/502356?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:14:50,185 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/109418?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:14:50,252 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/848116?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:14:50,332 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/159824?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:14:50,398 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/1325734?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+TF-IDF recommendation error: 404: Title not found in local dataset: 'Palm Springs'
+INFO:     127.0.0.1:11553 - "POST /chat HTTP/1.1" 200 OK
+C:\Users\bhoomik\Desktop\last project - Copy\movie-rec\main.py:894: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  (user_id, action.tmdb_id, action.action_type, action.query, datetime.utcnow().isoformat())
+INFO:     127.0.0.1:28764 - "POST /user-action HTTP/1.1" 200 OK
+INFO:     127.0.0.1:25136 - "GET /movie/id/587792 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:9862 - "GET /rating/ladnishit/587792 HTTP/1.1" 200 OK
+TF-IDF recommendation error: 404: Title not found in local dataset: 'Palm Springs'
+INFO:     127.0.0.1:22684 - "GET /movie/similar/587792 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:25136 - "GET /movie/ai-insight/587792?username=ladnishit HTTP/1.1" 200 OK
+2026-04-11 23:15:40,762 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/person?query=Christopher+Nolan&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:15:41,045 - INFO - HTTP Request: GET https://api.themoviedb.org/3/discover/movie?with_cast=525&sort_by=vote_count.desc&include_adult=false&language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:15:41,312 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=Interstellar&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:15:41,569 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/157336?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:15:41,870 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=The+Big+Short&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:15:42,129 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=The+World+According+to+Sesame+Street&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:15:42,157 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=The+Fourth+World+War&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:15:42,175 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=Maula+Jat&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:15:42,201 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=Clinton+Cash&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:15:42,249 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=Breaking+the+Taboo&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:15:42,517 - INFO - HTTP Request: GET https://api.themoviedb.org/3/discover/movie?with_genres=12&language=en-US&sort_by=popularity.desc&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:15:42,818 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/110354?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:15:42,840 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/595841?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:15:42,844 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/1149947?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:15:42,940 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/804706?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:15:43,016 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/80337?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:15:43,051 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/125231?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:15:43,133 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/1031907?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:15:43,145 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/1425725?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:15:43,166 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/50056?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:15:43,205 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/311998?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:15:43,223 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/464293?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:15:43,243 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/29751?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:15:43,275 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/301959?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:15:43,291 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/829707?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:15:43,311 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/336592?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:15:43,346 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/703363?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:15:43,359 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/103425?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:15:43,387 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/734586?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:15:43,420 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/318846?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:15:43,460 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/243238?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:15:43,501 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/1152711?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:15:43,540 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/186579?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:15:43,563 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/407789?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:15:43,644 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/529107?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:15:43,711 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/60976?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:15:43,780 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/79893?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:45168 - "POST /chat HTTP/1.1" 200 OK
+2026-04-11 23:16:09,953 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/person?query=Ridley+Scott&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:10,230 - INFO - HTTP Request: GET https://api.themoviedb.org/3/discover/movie?with_cast=578&sort_by=vote_count.desc&include_adult=false&language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:10,497 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=The+Martian&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:10,758 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/286217?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:11,119 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=Manhole&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:11,376 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=Varg+Veum+-+Black+Sheep&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:11,391 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=Tinseltown&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:11,406 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=The+Murderer+Lives+at+Number+21&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:11,453 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=Very+Russian+Detective&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:11,470 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=Safety+Catch&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:11,497 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=Drifter%3A+Henry+Lee+Lucas&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:11,524 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=Solace&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:11,540 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=Seven+Blood-Stained+Orchids&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:11,563 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=Death+Rage&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:11,595 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=Kalifornia&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:11,662 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=Gacy&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:11,935 - INFO - HTTP Request: GET https://api.themoviedb.org/3/discover/movie?with_genres=878&language=en-US&sort_by=popularity.desc&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:12,275 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/44345?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:12,352 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/333873?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:12,356 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/128051?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:12,376 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/250280?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:12,412 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/327962?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:12,430 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/70780?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:12,521 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/38959?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:12,554 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/198595?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:12,639 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/138741?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:12,719 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/460224?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:12,739 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/85214?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:12,743 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/3699?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:12,785 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/143876?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:12,803 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/183962?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:12,806 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/615434?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:12,854 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/595845?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:12,869 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/296543?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:12,878 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/833898?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:12,920 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/183396?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:12,941 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/25021?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:12,955 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/817562?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:12,997 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/950896?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:13,013 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/882844?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:13,058 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/322525?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:13,089 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/171118?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:13,149 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/55612?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:27904 - "POST /chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62097 - "POST /user-action HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62097 - "GET /movie/id/186705 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62097 - "GET /rating/ladnishit/186705 HTTP/1.1" 200 OK
+2026-04-11 23:16:46,708 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=Ghosts&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:46,730 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=The+Pardon&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:46,745 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=Chasers&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:46,785 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=Toni+Braxton%3A+Unbreak+My+Heart&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:46,802 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=Toni&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:46,816 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=Another+Woman&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:46,868 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=Circus&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:46,878 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=Strange+Bedfellows&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:46,937 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=The+Fits&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:46,951 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=North+Face&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:47,002 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=The+Last+Time+I+Saw+Paris&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:16:47,082 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=Sequoia&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:62097 - "GET /movie/similar/186705 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62097 - "GET /movie/ai-insight/186705?username=ladnishit HTTP/1.1" 200 OK
+INFO:     127.0.0.1:1769 - "POST /user-action HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57906 - "GET /rating/ladnishit/37793 HTTP/1.1" 200 OK
+2026-04-11 23:16:59,761 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/37793?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:4456 - "GET /movie/id/37793 HTTP/1.1" 200 OK
+2026-04-11 23:16:59,773 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/37793?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:17:00,081 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=A+m%C3%AD+las+mujeres+ni+fu+ni+fa&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:17:00,089 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=Paid+in+Full&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:17:00,352 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=High+and+Dizzy&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:17:00,360 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=Don+2%3A+The+King+is+Back&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:17:00,387 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=Ghayal&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:17:00,418 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=Welcome&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:17:00,436 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=%27D%27&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:17:00,462 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=U+Be+Dead&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:17:00,495 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=Underworld%3A+Endless+War&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:17:00,505 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=He+Loves+Me...+He+Loves+Me+Not&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:17:00,527 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=Vaastav%3A+The+Reality&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:17:00,565 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=Dr.+Cabbie&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:17:00,848 - INFO - HTTP Request: GET https://api.themoviedb.org/3/discover/movie?with_genres=10402&language=en-US&sort_by=popularity.desc&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:1769 - "GET /movie/similar/37793 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:1769 - "GET /movie/ai-insight/37793?username=ladnishit HTTP/1.1" 200 OK
+2026-04-11 23:17:23,727 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=dil&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:22620 - "GET /tmdb/search?query=dil HTTP/1.1" 200 OK
+2026-04-11 23:17:24,017 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/person?query=dil&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:36723 - "GET /search/actor?query=dil HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36723 - "POST /user-action HTTP/1.1" 200 OK
+2026-04-11 23:17:24,663 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=dilwa&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:17:24,666 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/person?query=dilwa&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:22620 - "GET /tmdb/search?query=dilwa HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36723 - "GET /search/actor?query=dilwa HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36723 - "POST /user-action HTTP/1.1" 200 OK
+2026-04-11 23:17:25,601 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/person?query=dilwal&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:58656 - "GET /search/actor?query=dilwal HTTP/1.1" 200 OK
+2026-04-11 23:17:25,612 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=dilwal&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:22620 - "GET /tmdb/search?query=dilwal HTTP/1.1" 200 OK
+INFO:     127.0.0.1:22620 - "POST /user-action HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36723 - "GET /rating/ladnishit/19404 HTTP/1.1" 200 OK
+2026-04-11 23:17:27,501 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/19404?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:17:27,502 - INFO - HTTP Request: GET https://api.themoviedb.org/3/movie/19404?language=en-US&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:58656 - "GET /movie/id/19404 HTTP/1.1" 200 OK
+2026-04-11 23:17:27,820 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=BUtterfield+8&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:17:27,854 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=Loco+Fever&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:17:28,089 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=The+Mudlark&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:17:28,108 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=Not+Love%2C+Just+Frenzy&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:17:28,125 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=Femme+Fatale&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:17:28,161 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=The+Insect+Woman&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:17:28,177 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=It+Happened+at+the+World%27s+Fair&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:17:28,205 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=Jonny+Vang&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:17:28,230 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=For+the+Love+of+a+Dog&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:17:28,259 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=Kissed+by+Winter&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:17:28,267 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=Bad+Education&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 23:17:28,297 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=Gloria&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+INFO:     127.0.0.1:22620 - "GET /movie/similar/19404 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:22620 - "GET /movie/ai-insight/19404?username=ladnishit HTTP/1.1" 200 OK
+C:\Users\bhoomik\Desktop\last project - Copy\movie-rec\main.py:1519: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  (user_id, action.tmdb_id, "rating_update", datetime.utcnow().isoformat())
+INFO:     127.0.0.1:7098 - "POST /rating HTTP/1.1" 200 OK

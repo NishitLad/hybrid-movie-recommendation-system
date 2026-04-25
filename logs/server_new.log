@@ -1,0 +1,29 @@
+C:\Users\bhoomik\Desktop\last project - Copy\movie-rec\main.py:22: FutureWarning: 
+
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+INFO:     Started server process [14840]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:18269 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:18269 - "GET /style.css HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:18269 - "GET /app.js HTTP/1.1" 304 Not Modified
+C:\Users\bhoomik\Desktop\last project - Copy\movie-rec\main.py:913: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  age = datetime.utcnow() - ts
+2026-04-11 22:58:40,024 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=Ruby&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+C:\Users\bhoomik\Desktop\last project - Copy\movie-rec\main.py:254: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  (cache_key, json.dumps(data), datetime.utcnow().isoformat()))
+2026-04-11 22:58:40,045 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=The+Master+and+Margarita&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 22:58:40,066 - INFO - HTTP Request: GET https://api.themoviedb.org/3/search/movie?query=The+Wild+Bees&include_adult=false&language=en-US&page=1&api_key=3d58a33343a87f5a0a82a3957c84d565 "HTTP/1.1 200 OK"
+2026-04-11 22:58:40,074 - ERROR - Dashboard error for foryou: 'TMDBMovieDetails' object has no attribute 'vote_average'
+2026-04-11 22:58:40,074 - ERROR - Dashboard error for watchlist: 'TMDBMovieDetails' object has no attribute 'vote_average'
+2026-04-11 22:58:40,074 - ERROR - Dashboard error for history: 'TMDBMovieDetails' object has no attribute 'vote_average'
+Mood recommendation error: 'TMDBMovieDetails' object has no attribute 'vote_average'
+INFO:     127.0.0.1:18269 - "GET /dashboard/ladnishit HTTP/1.1" 200 OK
+INFO:     127.0.0.1:18269 - "GET /movie/id/1290417 HTTP/1.1" 200 OK

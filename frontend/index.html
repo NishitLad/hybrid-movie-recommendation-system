@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StreamFlix | Premium Cinematic Experience</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/style.css">
+    <script>
+        window.onerror = function(msg, url, line, col, error) {
+            const body = JSON.stringify({ msg, url, line, col, stack: error ? error.stack : "" });
+            fetch('/api/client-error', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: body
+            }).catch(e => {});
+            return false;
+        };
+    </script>
+</head>
+<body>
+    <div id="app-bg"></div>
+
+    <!-- Auth View -->
+    <div id="auth-view" class="view active">
+        <div class="auth-container">
+            <h1 class="logo">Stream<span>Flix</span></h1>
+            <p class="auth-subtitle" style="color: var(--text-secondary); margin: 0.5rem 0 2.5rem; font-size: 1.1rem;">Elevate your cinematic journey.</p>
+            
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">Log In</button>
+                <button class="auth-tab" id="tab-signup" onclick="switchAuthTab('signup')">Sign Up</button>
+            </div>
+
+            <form id="login-form" class="auth-form active">
+                <div class="input-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="l-user" placeholder="Username" required autocomplete="username">
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="l-pass" placeholder="Password" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn-primary" id="login-btn">
+                    <span>Enter the Realm</span>
+                </button>
+                <p class="auth-error" id="login-error" style="color: var(--secondary); margin-top: 1rem;"></p>
+            </form>
+
+            <form id="signup-form" class="auth-form">
+                <div class="input-group">
+                    <i class="fas fa-user-astronaut"></i>
+                    <input type="text" id="s-user" placeholder="Choose Username" required autocomplete="username">
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-id-card"></i>
+                    <input type="text" id="s-name" placeholder="Full Name" required autocomplete="name">
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="s-pass" placeholder="Create Password" required autocomplete="new-password">
+                </div>
+                <button type="submit" class="btn-primary" id="signup-btn">
+                    <span>Create Profile</span>
+                </button>
+                <p class="auth-error" id="signup-error" style="color: var(--secondary); margin-top: 1rem;"></p>
+                <p class="auth-success" id="signup-success" style="color: #10b981; margin-top: 1rem;"></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main View -->
+    <div id="main-view" class="view">
+        <nav class="navbar" id="main-nav">
+            <h1 class="logo" onclick="window.scrollTo({top:0, behavior:'smooth'})">Stream<span>Flix</span></h1>
+            
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="search-input" placeholder="Search the cinematic universe...">
+                <div id="search-results" class="hide" style="position: absolute; top: 110%; width: 100%; background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 20px; padding: 1rem; z-index: 100;"></div>
+            </div>
+
+            <div class="nav-actions">
+                <div class="user-greeting" id="user-greeting">Welcome back</div>
+                <button class="btn-icon" onclick="showProfile()" style="background: none; border: none; cursor: pointer; color: white; font-size: 1.5rem;"><i class="fas fa-user-circle"></i></button>
+                <button class="btn-icon" onclick="logout()" style="background: none; border: none; cursor: pointer; color: var(--text-secondary); font-size: 1.2rem; margin-left: 0.5rem;"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </nav>
+
+        <header class="hero" id="hero-section">
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+                <span class="badge" id="hero-badge"><i class="fas fa-fire"></i> Trending Premium</span>
+                <h1 class="hero-title" id="hero-title">Experience More</h1>
+                <p class="hero-overview" id="hero-overview">Loading your personalized experience...</p>
+                <div class="hero-buttons">
+                    <button class="btn-primary btn-large" id="hero-watch-btn"><i class="fas fa-play"></i> Watch Now</button>
+                    <button class="btn-secondary btn-large" id="hero-info-btn"><i class="fas fa-info-circle"></i> View Details</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Mood Explorer -->
+        <section class="mood-explorer" style="padding: 1rem 5%; background: rgba(0,0,0,0.2); border-bottom: 1px solid var(--glass-border); margin-top: -2rem; position: relative; z-index: 10;">
+            <div class="mood-chips" id="mood-chips" style="display: flex; gap: 0.75rem; overflow-x: auto; padding-bottom: 0.5rem; scrollbar-width: none;">
+                <button class="mood-chip active" onclick="filterByMood('all', this)">✨ All Picks</button>
+                <button class="mood-chip" onclick="filterByMood('thrilled', this)">🎞️ Heart-Racing</button>
+                <button class="mood-chip" onclick="filterByMood('romantic', this)">❤️ Sweet & Funny</button>
+                <button class="mood-chip" onclick="filterByMood('epic', this)">🧠 Brain-Bending</button>
+                <button class="mood-chip" onclick="filterByMood('scared', this)">🟣 Dark & Chilly</button>
+                <button class="mood-chip" onclick="filterByMood('happy', this)">🌈 Pure Joy</button>
+            </div>
+        </section>
+
+        <main class="content-rows" id="content-rows">
+            <!-- Dynamic Rows -->
+        </main>
+
+        <div id="profile-container" class="hide">
+            <div class="profile-header">
+                <h2 style="font-size: 1.4rem; font-weight: 800;">Your Taste Profile</h2>
+                <button onclick="closeProfile()" style="background:none; border:none; color:white; cursor:pointer;"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="profile-stats" id="profile-stats">
+                <!-- Stats -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="movie-modal" class="modal-overlay hide">
+        <div class="modal">
+            <button class="close-modal" onclick="closeModal()"><i class="fas fa-times"></i></button>
+            
+            <div class="modal-viewport" style="overflow-y: auto; max-height: 90vh; scrollbar-width: thin;">
+                <div class="modal-body">
+                    <div class="modal-image">
+                        <img id="modal-poster" src="" alt="Poster">
+                    </div>
+                    <div class="modal-info">
+                        <h2 id="modal-title">Movie Title</h2>
+                        <div class="modal-meta">
+                            <span class="rating"><i class="fas fa-star"></i> <span id="modal-rating">0.0</span></span>
+                            <span class="date" id="modal-date">2024</span>
+                        </div>
+                        <div class="genres" id="modal-genres" style="display: flex; gap: 0.5rem; margin-bottom: 2rem; flex-wrap: wrap;"></div>
+                        <p class="overview" id="modal-overview">Loading...</p>
+                        
+                        <!-- AI CONTEXTUAL INSIGHT BOX -->
+                        <div id="modal-ai-insight" style="margin-bottom: 2.5rem; padding: 1.25rem; background: rgba(139, 92, 246, 0.1); border-left: 4px solid var(--primary); border-radius: 8px; font-size: 0.95rem; line-height: 1.5; color: white; animation: slideUp 0.5s ease; border-top: 1px solid rgba(139, 92, 246, 0.2); border-right: 1px solid rgba(139, 92, 246, 0.2); border-bottom: 1px solid rgba(139, 92, 246, 0.2);">
+                            <!-- AI insight goes here -->
+                        </div>
+
+                        <div class="modal-actions" style="display: flex; gap: 1rem; align-items: center;">
+                            <button class="btn-primary" id="modal-like-btn" onclick="likeMovie()" style="width: auto; padding: 0.8rem 2rem;">
+                                <i class="fas fa-heart"></i> Like
+                            </button>
+                            <button class="btn-secondary" id="modal-watchlist-btn" onclick="toggleWatchlist()" style="padding: 0.8rem 2rem; border-radius: 12px; cursor: pointer;">
+                                <i class="fas fa-bookmark"></i> Watchlist
+                            </button>
+                            <div class="rating-stars" id="modal-rating-stars" style="display: flex; gap: 0.25rem; background: rgba(255,255,255,0.05); padding: 0.8rem 1.2rem; border-radius: 14px; border: 1px solid var(--glass-border);">
+                                <i class="far fa-star star-btn" data-value="1" onclick="setRating(1)"></i>
+                                <i class="far fa-star star-btn" data-value="2" onclick="setRating(2)"></i>
+                                <i class="far fa-star star-btn" data-value="3" onclick="setRating(3)"></i>
+                                <i class="far fa-star star-btn" data-value="4" onclick="setRating(4)"></i>
+                                <i class="far fa-star star-btn" data-value="5" onclick="setRating(5)"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Similar Movies Section (Below content) -->
+                <div class="modal-similar" style="padding: 3rem 4rem; border-top: 1px solid var(--glass-border); background: rgba(0,0,0,0.3);">
+                    <h3 style="margin-bottom: 2rem; font-size: 1.5rem; display: flex; align-items: center; gap: 0.75rem; font-weight: 800;">
+                        <i class="fas fa-wand-magic-sparkles" style="color: var(--primary);"></i> More Like This
+                    </h3>
+                    <div class="carousel-container">
+                        <button class="carousel-btn prev" onclick="scrollCarousel('modal-similar-carousel', -1)"><i class="fas fa-chevron-left"></i></button>
+                        <div class="carousel" id="modal-similar-carousel" style="display: flex; gap: 1.5rem; overflow-x: auto; padding-bottom: 1.5rem; scrollbar-width: none;">
+                            <!-- Dynamically populated -->
+                        </div>
+                        <button class="carousel-btn next" onclick="scrollCarousel('modal-similar-carousel', 1)"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global Loader -->
+    <div id="global-loader">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- AI Chat Assistant -->
+    <div id="ai-chat-bubble" onclick="toggleChat()">
+        <i class="fas fa-robot"></i>
+    </div>
+
+    <div id="ai-chat-window" class="hide">
+        <div class="chat-header">
+            <span><i class="fas fa-robot"></i> AI Movie Assistant</span>
+            <button onclick="toggleChat()"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="chat-messages" class="chat-messages">
+            <div class="message ai">
+                Hello! I'm your AI guide. Tell me what kind of movie you're looking for! 🍿
+            </div>
+        </div>
+        <div class="chat-input-area">
+            <input type="text" id="chat-input" placeholder="Ask me something..." onkeypress="handleChatKey(event)">
+            <button onclick="sendChatMessage()"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <script src="/app.js"></script>
+    <script>
+        // Interactive Scroll Navbar
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('main-nav');
+            if (window.scrollY > 50) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+    </script>
+</body>
+</html>
