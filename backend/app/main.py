@@ -1414,7 +1414,7 @@ async def get_collaborative_recommendations(username: str, limit: int = 12):
     c.execute(f"""
         SELECT user_id, COUNT(*) as common_count FROM user_history 
         WHERE tmdb_id IN ({placeholders})
-        GROUP BY user_id HAVING common_count >= 2 AND user_id != ?
+        GROUP BY user_id HAVING COUNT(*) >= 2 AND user_id != ?
         ORDER BY common_count DESC LIMIT 50
     """, watched_list + [user_id])
     similar_users = [row[0] for row in c.fetchall()]
