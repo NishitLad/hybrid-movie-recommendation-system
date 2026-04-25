@@ -1,3 +1,19 @@
+import os
+import sqlite3
+import pickle
+import logging
+from datetime import datetime
+from typing import Optional, List, Dict, Any, Tuple
+
+import numpy as np
+import pandas as pd
+import httpx
+import asyncio
+from cachetools import TTLCache
+from fastapi import FastAPI, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from dotenv import load_dotenv
 import google.generativeai as genai
 
 # PostgreSQL Support for Render
