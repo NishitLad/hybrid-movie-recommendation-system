@@ -427,7 +427,7 @@ def get_local_idx_by_title(title: str) -> int:
 
 def tfidf_recommend_titles(
     query_title: str, top_n: int = 10
-) -> List[Tuple[str, float]]:
+) -> List[Tuple[str, float, int]]:
     """
     Returns list of (title, score) from local df using cosine similarity on TF-IDF matrix.
     IMPROVED: Filters low-quality results and ensures diversity
@@ -472,7 +472,8 @@ def tfidf_recommend_titles(
             
             # Add diversity: prefer unseen genres
             if len(out) < top_n:
-                out.append((title_i, float(score)))
+                t_id = int(df.iloc[int(i)]["id"])
+                out.append((title_i, float(score), t_id))
             
             if len(out) >= top_n * 2:  # Get extra candidates
                 break
@@ -816,30 +817,27 @@ async def get_similar_movies(tmdb_id: int, limit: int = 12):
     1. Local TF-IDF (Content similarity on plot/overview)
     2. TMDB Genre discovery (Genre similarity)
     """
-    details = await tmdb_movie_details(tmdb_id)
+    # 1. Fetch Details & Initial Recs concurrently
+    details_task = tmdb_movie_details(tmdb_id)
     
-    # 1. Content Similarity (TF-IDF)
-    tfidf_recs = []
+    # Run TF-IDF search immediately (local, fast)
+    details = await details_task
+    
+    recs = []
     try:
         recs = tfidf_recommend_titles(details.title, top_n=limit)
-        
-        # Parallelize TMDB lookups for posters
-        import asyncio
-        tasks = [attach_tmdb_card_by_title(title) for title, _ in recs]
-        cards = await asyncio.gather(*tasks)
-        
-        for card in cards:
-            if card and card.tmdb_id != tmdb_id:
-                tfidf_recs.append(card)
-    except Exception as e:
-        print(f"TF-IDF recommendation error: {e}")
+    except Exception:
         pass
 
-    # 2. Genre Similarity
-    genre_recs = []
+    # 2. Parallelize ALL remaining TMDB work
+    # - Fetch details for all TF-IDF recs
+    # - Fetch genre recommendations
+    tfidf_tasks = [tmdb_movie_details(m_id) for _, _, m_id in recs]
+    
+    genre_discover_task = None
     if details.genres:
         genre_id = details.genres[0]["id"]
-        discover = await tmdb_get(
+        genre_discover_task = tmdb_get(
             "/discover/movie",
             {
                 "with_genres": genre_id,
@@ -848,14 +846,35 @@ async def get_similar_movies(tmdb_id: int, limit: int = 12):
                 "page": 1,
             },
         )
-        genre_cards = await tmdb_cards_from_results(discover.get("results", []), limit=limit)
-        genre_recs = [c for c in genre_cards if c.tmdb_id != tmdb_id]
 
-    # Combine and deduplicate
+    # Combine all tasks
+    import asyncio
+    if genre_discover_task:
+        results = await asyncio.gather(*tfidf_tasks, genre_discover_task, return_exceptions=True)
+        genre_data = results[-1]
+        tfidf_results = results[:-1]
+    else:
+        tfidf_results = await asyncio.gather(*tfidf_tasks, return_exceptions=True)
+        genre_data = {}
+
+    # 3. Assemble Results
+    tfidf_recs = []
+    for r in tfidf_results:
+        if isinstance(r, TMDBMovieDetails) and r.tmdb_id != tmdb_id:
+            tfidf_recs.append(TMDBMovieCard(
+                tmdb_id=r.tmdb_id, title=r.title, poster_url=r.poster_url,
+                release_date=r.release_date, vote_average=r.vote_average
+            ))
+
+    genre_recs = []
+    if isinstance(genre_data, dict) and "results" in genre_data:
+        cards = await tmdb_cards_from_results(genre_data["results"], limit=limit)
+        genre_recs = [c for c in cards if c.tmdb_id != tmdb_id]
+
+    # Combine and de-duplicate
     combined = []
     seen = {tmdb_id}
     
-    # Interleave results
     for i in range(max(len(tfidf_recs), len(genre_recs))):
         if i < len(tfidf_recs) and tfidf_recs[i].tmdb_id not in seen:
             combined.append(tfidf_recs[i])
@@ -863,7 +882,7 @@ async def get_similar_movies(tmdb_id: int, limit: int = 12):
         if i < len(genre_recs) and genre_recs[i].tmdb_id not in seen:
             combined.append(genre_recs[i])
             seen.add(genre_recs[i].tmdb_id)
-            
+
     return combined[:limit]
 
 
