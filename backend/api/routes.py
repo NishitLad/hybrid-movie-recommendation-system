@@ -3,7 +3,7 @@ import os
 import sqlite3
 import json
 import numpy as np
-import google.generativeai as genai
+from google import genai
 from datetime import datetime
 from typing import List, Tuple, Dict, Any
 from fastapi import APIRouter, HTTPException, Query
@@ -488,12 +488,12 @@ async def get_ai_insight(tmdb_id: int, username: str = "guest"):
     
     try:
         details = await tmdb_movie_details(tmdb_id)
-        genai.configure(api_key=gemini_key)
-        model = genai.GenerativeModel('gemini-flash-latest')
+        client = genai.Client(api_key=gemini_key)
         prompt = f"User is asking about '{details.title}' ({details.overview}). Give a one-sentence witty cinematic insight why they should or shouldn't watch it."
-        response = await asyncio.to_thread(model.generate_content, prompt)
+        response = client.models.generate_content(model='gemini-2.0-flash', contents=prompt)
         return {"insight": response.text.strip()}
-    except:
+    except Exception as e:
+        logging.error(f"AI Insight error: {e}")
         return {"insight": "The cinematic oracle is hazy. Trust your gut on this one!"}
 
 @router.post("/chat")
@@ -502,21 +502,24 @@ async def chat_assistant(payload: Dict[str, str]):
     username = payload.get("username", "guest")
     gemini_key = os.getenv("GEMINI_API_KEY")
     
-    # Simple fallback if no Gemini key
     if not gemini_key or "YOUR_GEMINI" in gemini_key:
         return {"reply": "I'm your cinematic master! Without my AI brain (API key), I can only offer limited advice.", "recommendations": []}
 
     try:
-        genai.configure(api_key=gemini_key)
-        model = genai.GenerativeModel('gemini-flash-latest')
+        client = genai.Client(api_key=gemini_key)
         prompt = f"You are a cinematic expert. User says: {user_msg}. Respond briefly and suggest search terms. Return JSON: {{'reply': '...', 'search_query': '...'}}"
-        response = await asyncio.to_thread(model.generate_content, prompt, generation_config={"response_mime_type": "application/json"})
+        response = client.models.generate_content(
+            model='gemini-2.0-flash', 
+            contents=prompt,
+            config={'response_mime_type': 'application/json'}
+        )
         ai_data = json.loads(response.text)
         
         tmdb_data = await tmdb_search_movies(ai_data.get("search_query", user_msg))
         recs = await tmdb_cards_from_results(tmdb_data.get("results", []), limit=6)
         return {"reply": ai_data["reply"], "recommendations": recs}
-    except:
+    except Exception as e:
+        logging.error(f"Chat error: {e}")
         return {"reply": "Cinema is vast and mysterious. I'm having trouble thinking clearly right now.", "recommendations": []}
 
 # ---------- DASHBOARD ----------
