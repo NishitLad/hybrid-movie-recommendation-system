@@ -227,6 +227,10 @@ async def tmdb_get(path: str, params: Dict[str, Any]) -> Dict[str, Any]:
     """
     Cached & Pooled TMDB GET (In-memory + Persistent DB Cache)
     """
+    # Skip invalid IDs
+    if path.endswith("/0"):
+        return {}
+
     # Create cache key
     cache_key = f"{path}_{sorted(params.items())}"
     
