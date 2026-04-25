@@ -259,7 +259,7 @@ async def tmdb_get(path: str, params: Dict[str, Any]) -> Dict[str, Any]:
     MAX_RETRIES = 3
     for attempt in range(MAX_RETRIES):
         try:
-            r = await HTTP_CLIENT.get(f"{TMDB_BASE}{path}", params=q, timeout=10)
+            r = await HTTP_CLIENT.get(f"{TMDB_BASE}{path}", params=q, timeout=15)
             if r.status_code == 200:
                 data = r.json()
                 
@@ -278,7 +278,7 @@ async def tmdb_get(path: str, params: Dict[str, Any]) -> Dict[str, Any]:
                 return data
             elif r.status_code == 429:
                 # Rate limit hit - wait and retry
-                await asyncio.sleep(0.25 * (attempt + 1))
+                await asyncio.sleep(0.5 * (attempt + 1))
                 continue
             else:
                 # Log error and return empty instead of crashing
@@ -289,7 +289,7 @@ async def tmdb_get(path: str, params: Dict[str, Any]) -> Dict[str, Any]:
             if attempt == MAX_RETRIES - 1:
                 logging.error(f"TMDB connection failed: {e}")
                 return {} # Failure resilience
-            await asyncio.sleep(0.1 * (attempt + 1))
+            await asyncio.sleep(0.2 * (attempt + 1))
     return {}
 
 
@@ -621,6 +621,13 @@ def init_db():
                 timestamp TIMESTAMP
             )
         ''')
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS ai_insight_cache (
+                tmdb_id INTEGER PRIMARY KEY,
+                insight TEXT,
+                timestamp TIMESTAMP
+            )
+        ''')
     else:
         # SQLite schema
         c.execute('''
@@ -674,6 +681,13 @@ def init_db():
                 content TEXT,
                 timestamp DATETIME,
                 FOREIGN KEY(user_id) REFERENCES users(id)
+            )
+        ''')
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS ai_insight_cache (
+                tmdb_id INTEGER PRIMARY KEY,
+                insight TEXT,
+                timestamp DATETIME
             )
         ''')
     conn.commit()
@@ -2074,6 +2088,18 @@ async def get_movie_ai_insight(tmdb_id: int, username: str = "guest"):
     Provides a personalized "Cinematic Master's Take" on a specific movie
     based on the user's DNA profile.
     """
+    # 1. CHECK CACHE FIRST
+    try:
+        conn = get_db()
+        c = conn.cursor()
+        c.execute("SELECT insight FROM ai_insight_cache WHERE tmdb_id = ?", (tmdb_id,))
+        row = c.fetchone()
+        if row:
+            conn.close()
+            return {"insight": row[0]}
+    except Exception as e:
+        logging.warning(f"AI Cache read error: {e}")
+
     gemini_key = os.getenv("GEMINI_API_KEY")
     if not gemini_key or "YOUR_GEMINI" in gemini_key:
         return {"insight": "Unlock your personalized Cinematic Master's Take by adding your Gemini API key."}
@@ -2099,7 +2125,18 @@ async def get_movie_ai_insight(tmdb_id: int, username: str = "guest"):
         """
         
         response = await asyncio.to_thread(model.generate_content, prompt)
-        return {"insight": response.text.strip()}
+        insight = response.text.strip()
+
+        # 2. SAVE TO CACHE
+        try:
+            c.execute("INSERT INTO ai_insight_cache (tmdb_id, insight, timestamp) VALUES (?, ?, ?)",
+                      (tmdb_id, insight, datetime.utcnow().isoformat()))
+            conn.commit()
+            conn.close()
+        except Exception as e:
+            logging.warning(f"AI Cache write error: {e}")
+
+        return {"insight": insight}
     except Exception as e:
         logging.error(f"AI Insight Error: {e}")
         return {"insight": "A cinematic mystery remains... (Ensure your API key is valid)"}
