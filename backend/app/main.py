@@ -2155,7 +2155,7 @@ async def get_dashboard_bundle(username: str):
     return result
 
 # Mount Static Files (at the end to avoid route conflicts)
-app.mount("/", StaticFiles(directory="web_ui", html=True), name="static")
+app.mount("/", StaticFiles(directory="frontend", html=True), name="static")
 
 if __name__ == "__main__":
     import uvicorn
