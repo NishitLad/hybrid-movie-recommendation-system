@@ -195,23 +195,27 @@ async def signup(user: UserSignup):
     if len(user.password) < 6:
         raise HTTPException(status_code=400, detail="Password must be at least 6 characters long")
     
-    conn = sqlite3.connect(DB_PATH, timeout=20)
+    from ..db.database import P
+    conn = get_db()
     c = conn.cursor()
     try:
-        c.execute("INSERT INTO users (username, full_name, password) VALUES (?, ?, ?)", 
+        c.execute(f"INSERT INTO users (username, full_name, password) VALUES ({P}, {P}, {P})", 
                   (user.username, user.full_name, user.password))
         conn.commit()
-    except sqlite3.IntegrityError:
+    except Exception as e:
         conn.close()
-        raise HTTPException(status_code=400, detail="Username already registered")
+        if "unique" in str(e).lower() or "already registered" in str(e).lower():
+            raise HTTPException(status_code=400, detail="Username already registered")
+        raise HTTPException(status_code=500, detail=f"Signup failed: {e}")
     conn.close()
     return {"message": "User created successfully", "username": user.username, "full_name": user.full_name}
 
 @router.post("/login")
 async def login(user: UserAuth):
-    conn = sqlite3.connect(DB_PATH, timeout=20)
+    from ..db.database import P
+    conn = get_db()
     c = conn.cursor()
-    c.execute("SELECT id FROM users WHERE username = ? AND password = ?", (user.username, user.password))
+    c.execute(f"SELECT id FROM users WHERE username = {P} AND password = {P}", (user.username, user.password))
     row = c.fetchone()
     conn.close()
     
@@ -221,16 +225,17 @@ async def login(user: UserAuth):
 
 @router.post("/user-action")
 async def store_user_action(action: UserAction):
-    conn = sqlite3.connect(DB_PATH, timeout=20)
+    from ..db.database import P
+    conn = get_db()
     c = conn.cursor()
-    c.execute("SELECT id FROM users WHERE username = ?", (action.username,))
+    c.execute(f"SELECT id FROM users WHERE username = {P}", (action.username,))
     row = c.fetchone()
     if not row:
         conn.close()
         raise HTTPException(status_code=404, detail="User not found")
     user_id = row[0]
     c.execute(
-        "INSERT INTO user_history (user_id, tmdb_id, action_type, query, timestamp) VALUES (?, ?, ?, ?, ?)",
+        f"INSERT INTO user_history (user_id, tmdb_id, action_type, query, timestamp) VALUES ({P}, {P}, {P}, {P}, {P})",
         (user_id, action.tmdb_id, action.action_type, action.query, datetime.utcnow().isoformat())
     )
     conn.commit()
@@ -241,16 +246,17 @@ async def store_user_action(action: UserAction):
 
 @router.get("/recommendations/{username}", response_model=List[TMDBMovieCard])
 async def get_personalized_recommendations(username: str, limit: int = 18):
+    from ..db.database import P
     conn = get_db()
     c = conn.cursor()
-    c.execute("SELECT id FROM users WHERE username = ?", (username,))
+    c.execute(f"SELECT id FROM users WHERE username = {P}", (username,))
     u_row = c.fetchone()
     if not u_row: return await home(category="popular", limit=limit)
     user_id = u_row[0]
 
-    c.execute("SELECT tmdb_id, rating FROM user_ratings WHERE user_id = ?", (user_id,))
+    c.execute(f"SELECT tmdb_id, rating FROM user_ratings WHERE user_id = {P}", (user_id,))
     ratings = {row[0]: row[1] for row in c.fetchall()}
-    c.execute("SELECT tmdb_id, action_type, timestamp, query FROM user_history WHERE user_id = ? ORDER BY timestamp DESC LIMIT 500", (user_id,))
+    c.execute(f"SELECT tmdb_id, action_type, timestamp, query FROM user_history WHERE user_id = {P} ORDER BY timestamp DESC LIMIT 500", (user_id,))
     actions = c.fetchall()
 
     if not actions and not ratings: return await home(category="trending", limit=limit)
@@ -321,15 +327,16 @@ async def get_personalized_recommendations(username: str, limit: int = 18):
 
 @router.get("/recommendations/genres/{username}", response_model=List[TMDBMovieCard])
 async def get_genre_based_recommendations(username: str, limit: int = 18):
-    conn = sqlite3.connect(DB_PATH, timeout=20)
+    from ..db.database import P
+    conn = get_db()
     c = conn.cursor()
-    c.execute("SELECT id FROM users WHERE username = ?", (username,))
+    c.execute(f"SELECT id FROM users WHERE username = {P}", (username,))
     u_row = c.fetchone()
     if not u_row:
         conn.close()
         return await home(category="trending", limit=limit)
     user_id = u_row[0]
-    c.execute("SELECT tmdb_id FROM user_history WHERE user_id = ? AND action_type = 'like' LIMIT 20", (user_id,))
+    c.execute(f"SELECT tmdb_id FROM user_history WHERE user_id = {P} AND action_type = 'like' LIMIT 20", (user_id,))
     liked_movies = [row[0] for row in c.fetchall()]
     conn.close()
     if not liked_movies: return await home(category="trending", limit=limit)
@@ -351,24 +358,25 @@ async def get_genre_based_recommendations(username: str, limit: int = 18):
 
 @router.get("/recommendations/collaborative/{username}", response_model=List[TMDBMovieCard])
 async def get_collaborative_recommendations(username: str, limit: int = 12):
+    from ..db.database import P
     conn = get_db()
     c = conn.cursor()
-    c.execute("SELECT id FROM users WHERE username = ?", (username,))
+    c.execute(f"SELECT id FROM users WHERE username = {P}", (username,))
     u_row = c.fetchone()
     if not u_row: return await home(category="popular", limit=limit)
     user_id = u_row[0]
-    c.execute("SELECT tmdb_id FROM user_history WHERE user_id = ? AND action_type IN ('view', 'like')", (user_id,))
+    c.execute(f"SELECT tmdb_id FROM user_history WHERE user_id = {P} AND action_type IN ('view', 'like')", (user_id,))
     user_movies = set(row[0] for row in c.fetchall())
     if not user_movies: return await home(category="popular", limit=limit)
     
     watched_list = list(user_movies)[:20]
-    placeholders = ",".join("?" * len(watched_list))
-    c.execute(f"SELECT user_id, COUNT(*) as c FROM user_history WHERE tmdb_id IN ({placeholders}) GROUP BY user_id HAVING c >= 2 AND user_id != ? ORDER BY c DESC LIMIT 50", watched_list + [user_id])
+    placeholders = ",".join(P for _ in range(len(watched_list)))
+    c.execute(f"SELECT user_id, COUNT(*) as c FROM user_history WHERE tmdb_id IN ({placeholders}) GROUP BY user_id HAVING c >= 2 AND user_id != {P} ORDER BY c DESC LIMIT 50", watched_list + [user_id])
     sim_users = [row[0] for row in c.fetchall()]
     if not sim_users: return await home(category="popular", limit=limit)
     
-    placeholders = ",".join("?" * len(sim_users))
-    c.execute(f"SELECT tmdb_id, COUNT(*) as lc FROM user_history WHERE user_id IN ({placeholders}) AND action_type = 'like' GROUP BY tmdb_id ORDER BY lc DESC LIMIT ?", sim_users + [limit * 3])
+    placeholders = ",".join(P for _ in range(len(sim_users)))
+    c.execute(f"SELECT tmdb_id, COUNT(*) as lc FROM user_history WHERE user_id IN ({placeholders}) AND action_type = 'like' GROUP BY tmdb_id ORDER BY lc DESC LIMIT {P}", sim_users + [limit * 3])
     collab_ids = [row[0] for row in c.fetchall() if row[0] not in user_movies]
     
     tasks = [tmdb_movie_details(m_id) for m_id in collab_ids[:limit]]
@@ -382,17 +390,18 @@ async def get_collaborative_recommendations(username: str, limit: int = 12):
 # ---------- STATS & ANALYTICS ----------
 @router.get("/user/stats/{username}")
 async def get_user_stats(username: str):
-    conn = sqlite3.connect(DB_PATH, timeout=20)
+    from ..db.database import P
+    conn = get_db()
     c = conn.cursor()
-    c.execute("SELECT id FROM users WHERE username = ?", (username,))
+    c.execute(f"SELECT id FROM users WHERE username = {P}", (username,))
     u_row = c.fetchone()
     if not u_row:
         conn.close()
         raise HTTPException(status_code=404, detail="User not found")
     user_id = u_row[0]
-    c.execute("SELECT action_type, COUNT(*) FROM user_history WHERE user_id = ? GROUP BY action_type", (user_id,))
+    c.execute(f"SELECT action_type, COUNT(*) FROM user_history WHERE user_id = {P} GROUP BY action_type", (user_id,))
     counts = {row[0]: row[1] for row in c.fetchall()}
-    c.execute("SELECT tmdb_id, action_type FROM user_history WHERE user_id = ? AND action_type IN ('like', 'view') ORDER BY timestamp DESC LIMIT 50", (user_id,))
+    c.execute(f"SELECT tmdb_id, action_type FROM user_history WHERE user_id = {P} AND action_type IN ('like', 'view') ORDER BY timestamp DESC LIMIT 50", (user_id,))
     recent = c.fetchall()
     conn.close()
     
@@ -452,6 +461,41 @@ async def recommend_by_mood(mood: str = Query(...), limit: int = 18):
         return final
     except: return await home(category="popular", limit=limit)
 
+@router.get("/rating/{username}/{tmdb_id}")
+async def get_user_movie_rating(username: str, tmdb_id: int):
+    from ..db.database import P
+    conn = get_db()
+    c = conn.cursor()
+    c.execute(f"SELECT id FROM users WHERE username = {P}", (username,))
+    u_row = c.fetchone()
+    if not u_row: return {"rating": 0, "in_watchlist": False}
+    user_id = u_row[0]
+    
+    c.execute(f"SELECT rating FROM user_ratings WHERE user_id = {P} AND tmdb_id = {P}", (user_id, tmdb_id))
+    r_row = c.fetchone()
+    rating = r_row[0] if r_row else 0
+    
+    c.execute(f"SELECT 1 FROM user_watchlist WHERE user_id = {P} AND tmdb_id = {P}", (user_id, tmdb_id))
+    in_watchlist = bool(c.fetchone())
+    conn.close()
+    return {"rating": rating, "in_watchlist": in_watchlist}
+
+@router.get("/movie/ai-insight/{tmdb_id}")
+async def get_ai_insight(tmdb_id: int, username: str = "guest"):
+    gemini_key = os.getenv("GEMINI_API_KEY")
+    if not gemini_key or "YOUR_GEMINI" in gemini_key:
+        return {"insight": "Our AI Master is currently resting. He says this movie looks promising!"}
+    
+    try:
+        details = await tmdb_movie_details(tmdb_id)
+        genai.configure(api_key=gemini_key)
+        model = genai.GenerativeModel('gemini-flash-latest')
+        prompt = f"User is asking about '{details.title}' ({details.overview}). Give a one-sentence witty cinematic insight why they should or shouldn't watch it."
+        response = await asyncio.to_thread(model.generate_content, prompt)
+        return {"insight": response.text.strip()}
+    except:
+        return {"insight": "The cinematic oracle is hazy. Trust your gut on this one!"}
+
 @router.post("/chat")
 async def chat_assistant(payload: Dict[str, str]):
     user_msg = payload.get("message", "").strip()
@@ -495,35 +539,42 @@ async def get_dashboard_bundle(username: str):
 # ---------- ACTIONS ----------
 @router.post("/rating")
 async def store_rating(action: RatingAction):
-    conn = sqlite3.connect(DB_PATH, timeout=20)
+    from ..db.database import P, DATABASE_URL
+    conn = get_db()
     c = conn.cursor()
-    c.execute("SELECT id FROM users WHERE username = ?", (action.username,))
+    c.execute(f"SELECT id FROM users WHERE username = {P}", (action.username,))
     row = c.fetchone()
     if not row:
         conn.close()
         raise HTTPException(status_code=404, detail="User not found")
     user_id = row[0]
-    c.execute("INSERT INTO user_ratings (user_id, tmdb_id, rating) VALUES (?, ?, ?) ON CONFLICT(user_id, tmdb_id) DO UPDATE SET rating=excluded.rating", (user_id, action.tmdb_id, action.rating))
+    if DATABASE_URL:
+        # PostgreSQL Upsert
+        c.execute(f"INSERT INTO user_ratings (user_id, tmdb_id, rating) VALUES ({P}, {P}, {P}) ON CONFLICT(user_id, tmdb_id) DO UPDATE SET rating=EXCLUDED.rating", (user_id, action.tmdb_id, action.rating))
+    else:
+        # SQLite Upsert
+        c.execute(f"INSERT INTO user_ratings (user_id, tmdb_id, rating) VALUES ({P}, {P}, {P}) ON CONFLICT(user_id, tmdb_id) DO UPDATE SET rating=excluded.rating", (user_id, action.tmdb_id, action.rating))
     conn.commit()
     conn.close()
     return {"status": "ok"}
 
 @router.post("/watchlist/toggle")
 async def toggle_watchlist(action: WatchlistAction):
-    conn = sqlite3.connect(DB_PATH, timeout=20)
+    from ..db.database import P
+    conn = get_db()
     c = conn.cursor()
-    c.execute("SELECT id FROM users WHERE username = ?", (action.username,))
+    c.execute(f"SELECT id FROM users WHERE username = {P}", (action.username,))
     row = c.fetchone()
     if not row:
         conn.close()
         raise HTTPException(status_code=404, detail="User not found")
     user_id = row[0]
-    c.execute("SELECT 1 FROM user_watchlist WHERE user_id = ? AND tmdb_id = ?", (user_id, action.tmdb_id))
+    c.execute(f"SELECT 1 FROM user_watchlist WHERE user_id = {P} AND tmdb_id = {P}", (user_id, action.tmdb_id))
     if c.fetchone():
-        c.execute("DELETE FROM user_watchlist WHERE user_id = ? AND tmdb_id = ?", (user_id, action.tmdb_id))
+        c.execute(f"DELETE FROM user_watchlist WHERE user_id = {P} AND tmdb_id = {P}", (user_id, action.tmdb_id))
         s = "removed"
     else:
-        c.execute("INSERT INTO user_watchlist (user_id, tmdb_id) VALUES (?, ?)", (user_id, action.tmdb_id))
+        c.execute(f"INSERT INTO user_watchlist (user_id, tmdb_id) VALUES ({P}, {P})", (user_id, action.tmdb_id))
         s = "added"
     conn.commit()
     conn.close()
@@ -531,13 +582,17 @@ async def toggle_watchlist(action: WatchlistAction):
 
 @router.get("/watchlist/{username}", response_model=List[TMDBMovieCard])
 async def get_watchlist(username: str):
+    from ..db.database import P
     conn = get_db()
     c = conn.cursor()
-    c.execute("SELECT id FROM users WHERE username = ?", (username,))
+    c.execute(f"SELECT id FROM users WHERE username = {P}", (username,))
     u_row = c.fetchone()
-    if not u_row: return []
-    c.execute("SELECT tmdb_id FROM user_watchlist WHERE user_id = ? LIMIT 50", (u_row[0],))
+    if not u_row: 
+        conn.close()
+        return []
+    c.execute(f"SELECT tmdb_id FROM user_watchlist WHERE user_id = {P} LIMIT 50", (u_row[0],))
     ids = [row[0] for row in c.fetchall()]
+    conn.close()
     tasks = [tmdb_movie_details(m_id) for m_id in ids]
     results = await asyncio.gather(*tasks, return_exceptions=True)
     cards = []

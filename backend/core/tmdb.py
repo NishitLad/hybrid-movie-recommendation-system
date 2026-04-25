@@ -26,9 +26,10 @@ async def tmdb_get(path: str, params: Dict[str, Any]) -> Dict[str, Any]:
         return TMDB_CACHE[cache_key]
 
     try:
+        from ..db.database import P
         conn = get_db()
         c = conn.cursor()
-        c.execute("SELECT response_json FROM tmdb_cache WHERE cache_key = ?", (cache_key,))
+        c.execute(f"SELECT response_json FROM tmdb_cache WHERE cache_key = {P}", (cache_key,))
         row = c.fetchone()
         if row:
             data = json.loads(row[0])
@@ -48,10 +49,17 @@ async def tmdb_get(path: str, params: Dict[str, Any]) -> Dict[str, Any]:
                 data = r.json()
                 TMDB_CACHE[cache_key] = data
                 try:
+                    from ..db.database import P, DATABASE_URL
                     conn = get_db()
                     c = conn.cursor()
-                    c.execute("INSERT OR REPLACE INTO tmdb_cache (cache_key, response_json, timestamp) VALUES (?, ?, ?)", 
-                              (cache_key, json.dumps(data), datetime.utcnow().isoformat()))
+                    if DATABASE_URL:
+                        # PostgreSQL Upsert
+                        c.execute(f"INSERT INTO tmdb_cache (cache_key, response_json, timestamp) VALUES ({P}, {P}, {P}) ON CONFLICT (cache_key) DO UPDATE SET response_json = EXCLUDED.response_json, timestamp = EXCLUDED.timestamp", 
+                                  (cache_key, json.dumps(data), datetime.utcnow().isoformat()))
+                    else:
+                        # SQLite Upsert
+                        c.execute(f"INSERT OR REPLACE INTO tmdb_cache (cache_key, response_json, timestamp) VALUES ({P}, {P}, {P})", 
+                                  (cache_key, json.dumps(data), datetime.utcnow().isoformat()))
                     conn.commit()
                 except Exception as db_e:
                     logging.warning(f"DB Cache write error: {db_e}")
