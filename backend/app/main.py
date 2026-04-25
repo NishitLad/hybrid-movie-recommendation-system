@@ -1505,7 +1505,8 @@ async def get_accurate_genre_recommendations(username: str, limit: int = 18):
     if not u_row: return await home(category="trending", limit=limit)
     
     user_id = u_row[0]
-    c.execute("SELECT DISTINCT tmdb_id FROM user_history WHERE user_id = ? ORDER BY timestamp DESC", (user_id,))
+    # PostgreSQL fix for DISTINCT + ORDER BY
+    c.execute("SELECT tmdb_id FROM user_history WHERE user_id = ? GROUP BY tmdb_id ORDER BY MAX(timestamp) DESC", (user_id,))
     all_movie_ids = set(row[0] for row in c.fetchall())
     
     c.execute("SELECT tmdb_id FROM user_history WHERE user_id = ? AND action_type = 'like' ORDER BY timestamp DESC LIMIT 30", (user_id,))
@@ -1693,7 +1694,8 @@ async def get_watch_history(username: str):
     if not u_row: return []
         
     user_id = u_row[0]
-    c.execute("SELECT DISTINCT tmdb_id FROM user_history WHERE user_id = ? AND action_type = 'view' ORDER BY timestamp DESC LIMIT 20", (user_id,))
+    # PostgreSQL fix for DISTINCT + ORDER BY
+    c.execute("SELECT tmdb_id FROM user_history WHERE user_id = ? AND action_type = 'view' GROUP BY tmdb_id ORDER BY MAX(timestamp) DESC LIMIT 20", (user_id,))
     history_movies = [row[0] for row in c.fetchall()]
     
     tasks = [tmdb_movie_details(m_id) for m_id in history_movies]
