@@ -435,6 +435,16 @@ async function openMovieDetails(tmdbId) {
                 similarCarousel.innerHTML = `<p style="color: var(--text-secondary); padding: 1rem;">No similar titles found.</p>`;
             }
         });
+        // FETCH AI CONTEXTUAL INSIGHT
+        const insightEl = document.getElementById("modal-ai-insight");
+        if (insightEl) {
+            insightEl.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Analyzing cinematic compatibility...`;
+            apiGet(`/movie/ai-insight/${tmdbId}?username=${currentUser}`).then(res => {
+                if (res.data) {
+                    insightEl.innerHTML = `<i class="fas fa-robot" style="color:var(--primary);"></i> <strong>MASTER'S TAKE:</strong> "${res.data.insight}"`;
+                }
+            });
+        }
     }
 }
 
@@ -462,21 +472,6 @@ function renderMovieDetailsModal(d, r) {
                 '<i class="fas fa-check" style="color: #10b981;"></i> In Watchlist' : 
                 '<i class="fas fa-bookmark"></i> Watchlist';
         }
-    }
-}
-
-        // FETCH AI CONTEXTUAL INSIGHT
-        const insightEl = document.getElementById("modal-ai-insight");
-        if (insightEl) {
-            insightEl.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Analyzing cinematic compatibility...`;
-            apiGet(`/movie/ai-insight/${tmdbId}?username=${currentUser}`).then(res => {
-                if (res.data) {
-                    insightEl.innerHTML = `<i class="fas fa-robot" style="color:var(--primary);"></i> <strong>MASTER'S TAKE:</strong> "${res.data.insight}"`;
-                }
-            });
-        }
-        
-        document.getElementById("movie-modal").classList.remove("hide");
     }
 }
 
