@@ -5,6 +5,10 @@ import logging
 from datetime import datetime
 from typing import Optional, List, Dict, Any, Tuple
 
+# Setup Logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+
+
 import numpy as np
 import pandas as pd
 import httpx
@@ -16,19 +20,6 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from dotenv import load_dotenv
 import google.generativeai as genai
-
-# PostgreSQL Support for Render
-DATABASE_URL = os.getenv("DATABASE_URL")
-if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
-    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
-
-IS_POSTGRES = DATABASE_URL is not None
-if IS_POSTGRES:
-    import psycopg2
-    from psycopg2.extras import RealDictCursor
-    logging.info("Using PostgreSQL Database")
-else:
-    logging.info("Using SQLite Database")
 
 
 # =========================
@@ -227,10 +218,6 @@ async def tmdb_get(path: str, params: Dict[str, Any]) -> Dict[str, Any]:
     """
     Cached & Pooled TMDB GET (In-memory + Persistent DB Cache)
     """
-    # Skip invalid IDs
-    if path.endswith("/0"):
-        return {}
-
     # Create cache key
     cache_key = f"{path}_{sorted(params.items())}"
     
@@ -259,7 +246,7 @@ async def tmdb_get(path: str, params: Dict[str, Any]) -> Dict[str, Any]:
     MAX_RETRIES = 3
     for attempt in range(MAX_RETRIES):
         try:
-            r = await HTTP_CLIENT.get(f"{TMDB_BASE}{path}", params=q, timeout=15)
+            r = await HTTP_CLIENT.get(f"{TMDB_BASE}{path}", params=q, timeout=10)
             if r.status_code == 200:
                 data = r.json()
                 
@@ -278,7 +265,7 @@ async def tmdb_get(path: str, params: Dict[str, Any]) -> Dict[str, Any]:
                 return data
             elif r.status_code == 429:
                 # Rate limit hit - wait and retry
-                await asyncio.sleep(0.5 * (attempt + 1))
+                await asyncio.sleep(0.25 * (attempt + 1))
                 continue
             else:
                 # Log error and return empty instead of crashing
@@ -289,7 +276,7 @@ async def tmdb_get(path: str, params: Dict[str, Any]) -> Dict[str, Any]:
             if attempt == MAX_RETRIES - 1:
                 logging.error(f"TMDB connection failed: {e}")
                 return {} # Failure resilience
-            await asyncio.sleep(0.2 * (attempt + 1))
+            await asyncio.sleep(0.1 * (attempt + 1))
     return {}
 
 
@@ -427,7 +414,7 @@ def get_local_idx_by_title(title: str) -> int:
 
 def tfidf_recommend_titles(
     query_title: str, top_n: int = 10
-) -> List[Tuple[str, float, int]]:
+) -> List[Tuple[str, float]]:
     """
     Returns list of (title, score) from local df using cosine similarity on TF-IDF matrix.
     IMPROVED: Filters low-quality results and ensures diversity
@@ -472,8 +459,7 @@ def tfidf_recommend_titles(
             
             # Add diversity: prefer unseen genres
             if len(out) < top_n:
-                t_id = int(df.iloc[int(i)]["id"])
-                out.append((title_i, float(score), t_id))
+                out.append((title_i, float(score)))
             
             if len(out) >= top_n * 2:  # Get extra candidates
                 break
@@ -498,200 +484,98 @@ async def attach_tmdb_card_by_title(title: str) -> Optional[TMDBMovieCard]:
             tmdb_id=int(m["id"]),
             title=m.get("title") or title,
             poster_url=make_img_url(m.get("poster_path")),
+            release_date=m.get("release_date"),
             vote_average=m.get("vote_average"),
         )
     except Exception:
         return None
 
-# Global connection pool
+# Global connection pool (simple version for SQLite)
 _DB_CONN = None
 
-class DbCursor:
-    def __init__(self, cursor):
-        self.cursor = cursor
-    
-    def execute(self, query, params=None):
-        if params is None:
-            params = ()
-        
-        if IS_POSTGRES:
-            # Convert ? to %s for PostgreSQL
-            query = query.replace('?', '%s')
-            
-            # Handle dialect-specific replacements
-            if 'INSERT OR REPLACE INTO tmdb_cache' in query:
-                query = query.replace('INSERT OR REPLACE INTO tmdb_cache (cache_key, response_json, timestamp) VALUES (%s, %s, %s)', 
-                                    'INSERT INTO tmdb_cache (cache_key, response_json, timestamp) VALUES (%s, %s, %s) ON CONFLICT (cache_key) DO UPDATE SET response_json=EXCLUDED.response_json, timestamp=EXCLUDED.timestamp')
-            
-            # Handle DATETIME -> TIMESTAMP if needed (Postgres uses TIMESTAMP)
-            query = query.replace('DATETIME', 'TIMESTAMP')
-            
-        return self.cursor.execute(query, params)
-    
-    def fetchone(self):
-        return self.cursor.fetchone()
-        
-    def fetchall(self):
-        return self.cursor.fetchall()
-        
-    def __getattr__(self, name):
-        return getattr(self.cursor, name)
-
-class DbConn:
-    def __init__(self, conn):
-        self.conn = conn
-        
-    def cursor(self):
-        if IS_POSTGRES:
-            # Return a RealDictCursor-like behavior if we want, but keeping it simple
-            return DbCursor(self.conn.cursor())
-        return DbCursor(self.conn.cursor())
-        
-    def commit(self):
-        return self.conn.commit()
-        
-    def close(self):
-        # In a managed pool, we might not want to close, 
-        # but for fresh connections we should.
-        return self.conn.close()
-        
-    def __getattr__(self, name):
-        return getattr(self.conn, name)
-
 def get_db():
-    if IS_POSTGRES:
-        conn = psycopg2.connect(DATABASE_URL)
-        conn.autocommit = True
-    else:
-        conn = sqlite3.connect(DB_PATH, timeout=20, check_same_thread=False)
-    return DbConn(conn)
+    global _DB_CONN
+    if _DB_CONN is None:
+        _DB_CONN = sqlite3.connect(DB_PATH, timeout=20, check_same_thread=False)
+    return _DB_CONN
 
 def init_db():
     conn = get_db()
     c = conn.cursor()
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE,
+            full_name TEXT,
+            password TEXT
+        )
+    ''')
+    # Add full_name column to existing table if it doesn't exist
+    try:
+        c.execute("ALTER TABLE users ADD COLUMN full_name TEXT")
+        conn.commit()
+    except sqlite3.OperationalError:
+        pass  # Column already exists
     
-    if IS_POSTGRES:
-        # PostgreSQL schema
-        c.execute('''
-            CREATE TABLE IF NOT EXISTS users (
-                id SERIAL PRIMARY KEY,
-                username TEXT UNIQUE,
-                full_name TEXT,
-                password TEXT
-            )
-        ''')
-        c.execute('''
-            CREATE TABLE IF NOT EXISTS user_history (
-                id SERIAL PRIMARY KEY,
-                user_id INTEGER REFERENCES users(id),
-                tmdb_id INTEGER,
-                action_type TEXT,
-                query TEXT,
-                timestamp TIMESTAMP
-            )
-        ''')
-        c.execute('''
-            CREATE TABLE IF NOT EXISTS user_ratings (
-                user_id INTEGER REFERENCES users(id),
-                tmdb_id INTEGER,
-                rating FLOAT,
-                UNIQUE(user_id, tmdb_id)
-            )
-        ''')
-        c.execute('''
-            CREATE TABLE IF NOT EXISTS user_watchlist (
-                user_id INTEGER REFERENCES users(id),
-                tmdb_id INTEGER,
-                UNIQUE(user_id, tmdb_id)
-            )
-        ''')
-        c.execute('''
-            CREATE TABLE IF NOT EXISTS tmdb_cache (
-                cache_key TEXT PRIMARY KEY,
-                response_json TEXT,
-                timestamp TIMESTAMP
-            )
-        ''')
-        c.execute('''
-            CREATE TABLE IF NOT EXISTS chat_history (
-                id SERIAL PRIMARY KEY,
-                user_id INTEGER REFERENCES users(id),
-                role TEXT,
-                content TEXT,
-                timestamp TIMESTAMP
-            )
-        ''')
-        c.execute('''
-            CREATE TABLE IF NOT EXISTS ai_insight_cache (
-                tmdb_id INTEGER PRIMARY KEY,
-                insight TEXT,
-                timestamp TIMESTAMP
-            )
-        ''')
-    else:
-        # SQLite schema
-        c.execute('''
-            CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                username TEXT UNIQUE,
-                full_name TEXT,
-                password TEXT
-            )
-        ''')
-        c.execute('''
-            CREATE TABLE IF NOT EXISTS user_history (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id INTEGER,
-                tmdb_id INTEGER,
-                action_type TEXT,
-                query TEXT,
-                timestamp DATETIME,
-                FOREIGN KEY(user_id) REFERENCES users(id)
-            )
-        ''')
-        c.execute('''
-            CREATE TABLE IF NOT EXISTS user_ratings (
-                user_id INTEGER,
-                tmdb_id INTEGER,
-                rating FLOAT,
-                UNIQUE(user_id, tmdb_id),
-                FOREIGN KEY(user_id) REFERENCES users(id)
-            )
-        ''')
-        c.execute('''
-            CREATE TABLE IF NOT EXISTS user_watchlist (
-                user_id INTEGER,
-                tmdb_id INTEGER,
-                UNIQUE(user_id, tmdb_id),
-                FOREIGN KEY(user_id) REFERENCES users(id)
-            )
-        ''')
-        c.execute('''
-            CREATE TABLE IF NOT EXISTS tmdb_cache (
-                cache_key TEXT PRIMARY KEY,
-                response_json TEXT,
-                timestamp DATETIME
-            )
-        ''')
-        c.execute('''
-            CREATE TABLE IF NOT EXISTS chat_history (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id INTEGER,
-                role TEXT,
-                content TEXT,
-                timestamp DATETIME,
-                FOREIGN KEY(user_id) REFERENCES users(id)
-            )
-        ''')
-        c.execute('''
-            CREATE TABLE IF NOT EXISTS ai_insight_cache (
-                tmdb_id INTEGER PRIMARY KEY,
-                insight TEXT,
-                timestamp DATETIME
-            )
-        ''')
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS user_history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            tmdb_id INTEGER,
+            action_type TEXT,
+            query TEXT,
+            timestamp DATETIME,
+            FOREIGN KEY(user_id) REFERENCES users(id)
+        )
+    ''')
+    
+    # Add query column to existing table if it doesn't exist
+    try:
+        c.execute("ALTER TABLE user_history ADD COLUMN query TEXT")
+        conn.commit()
+    except sqlite3.OperationalError:
+        pass
+    
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS user_ratings (
+            user_id INTEGER,
+            tmdb_id INTEGER,
+            rating FLOAT,
+            UNIQUE(user_id, tmdb_id),
+            FOREIGN KEY(user_id) REFERENCES users(id)
+        )
+    ''')
+    
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS user_watchlist (
+            user_id INTEGER,
+            tmdb_id INTEGER,
+            UNIQUE(user_id, tmdb_id),
+            FOREIGN KEY(user_id) REFERENCES users(id)
+        )
+    ''')
+
+    # ADD PERSISTENT TMDB CACHE TABLE
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS tmdb_cache (
+            cache_key TEXT PRIMARY KEY,
+            response_json TEXT,
+            timestamp DATETIME
+        )
+    ''')
+
+    # ADD CHAT HISTORY TABLE FOR CONTEXT/MEMORY
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS chat_history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            role TEXT,
+            content TEXT,
+            timestamp DATETIME,
+            FOREIGN KEY(user_id) REFERENCES users(id)
+        )
+    ''')
     conn.commit()
-    conn.close()
 
 
 # =========================
@@ -831,27 +715,30 @@ async def get_similar_movies(tmdb_id: int, limit: int = 12):
     1. Local TF-IDF (Content similarity on plot/overview)
     2. TMDB Genre discovery (Genre similarity)
     """
-    # 1. Fetch Details & Initial Recs concurrently
-    details_task = tmdb_movie_details(tmdb_id)
+    details = await tmdb_movie_details(tmdb_id)
     
-    # Run TF-IDF search immediately (local, fast)
-    details = await details_task
-    
-    recs = []
+    # 1. Content Similarity (TF-IDF)
+    tfidf_recs = []
     try:
         recs = tfidf_recommend_titles(details.title, top_n=limit)
-    except Exception:
+        
+        # Parallelize TMDB lookups for posters
+        import asyncio
+        tasks = [attach_tmdb_card_by_title(title) for title, _ in recs]
+        cards = await asyncio.gather(*tasks)
+        
+        for card in cards:
+            if card and card.tmdb_id != tmdb_id:
+                tfidf_recs.append(card)
+    except Exception as e:
+        print(f"TF-IDF recommendation error: {e}")
         pass
 
-    # 2. Parallelize ALL remaining TMDB work
-    # - Fetch details for all TF-IDF recs
-    # - Fetch genre recommendations
-    tfidf_tasks = [tmdb_movie_details(m_id) for _, _, m_id in recs]
-    
-    genre_discover_task = None
+    # 2. Genre Similarity
+    genre_recs = []
     if details.genres:
         genre_id = details.genres[0]["id"]
-        genre_discover_task = tmdb_get(
+        discover = await tmdb_get(
             "/discover/movie",
             {
                 "with_genres": genre_id,
@@ -860,35 +747,14 @@ async def get_similar_movies(tmdb_id: int, limit: int = 12):
                 "page": 1,
             },
         )
+        genre_cards = await tmdb_cards_from_results(discover.get("results", []), limit=limit)
+        genre_recs = [c for c in genre_cards if c.tmdb_id != tmdb_id]
 
-    # Combine all tasks
-    import asyncio
-    if genre_discover_task:
-        results = await asyncio.gather(*tfidf_tasks, genre_discover_task, return_exceptions=True)
-        genre_data = results[-1]
-        tfidf_results = results[:-1]
-    else:
-        tfidf_results = await asyncio.gather(*tfidf_tasks, return_exceptions=True)
-        genre_data = {}
-
-    # 3. Assemble Results
-    tfidf_recs = []
-    for r in tfidf_results:
-        if isinstance(r, TMDBMovieDetails) and r.tmdb_id != tmdb_id:
-            tfidf_recs.append(TMDBMovieCard(
-                tmdb_id=r.tmdb_id, title=r.title, poster_url=r.poster_url,
-                release_date=r.release_date, vote_average=r.vote_average
-            ))
-
-    genre_recs = []
-    if isinstance(genre_data, dict) and "results" in genre_data:
-        cards = await tmdb_cards_from_results(genre_data["results"], limit=limit)
-        genre_recs = [c for c in cards if c.tmdb_id != tmdb_id]
-
-    # Combine and de-duplicate
+    # Combine and deduplicate
     combined = []
     seen = {tmdb_id}
     
+    # Interleave results
     for i in range(max(len(tfidf_recs), len(genre_recs))):
         if i < len(tfidf_recs) and tfidf_recs[i].tmdb_id not in seen:
             combined.append(tfidf_recs[i])
@@ -896,7 +762,7 @@ async def get_similar_movies(tmdb_id: int, limit: int = 12):
         if i < len(genre_recs) and genre_recs[i].tmdb_id not in seen:
             combined.append(genre_recs[i])
             seen.add(genre_recs[i].tmdb_id)
-
+            
     return combined[:limit]
 
 
@@ -989,7 +855,7 @@ async def signup(user: UserSignup):
     if len(user.username) < 3:
         raise HTTPException(status_code=400, detail="Username must be at least 3 characters long")
     
-    conn = get_db()
+    conn = sqlite3.connect(DB_PATH, timeout=20)
     c = conn.cursor()
     try:
         c.execute("INSERT INTO users (username, full_name, password) VALUES (?, ?, ?)", 
@@ -1004,7 +870,7 @@ async def signup(user: UserSignup):
 
 @app.post("/login")
 async def login(user: UserAuth):
-    conn = get_db()
+    conn = sqlite3.connect(DB_PATH, timeout=20)
     c = conn.cursor()
     c.execute("SELECT id FROM users WHERE username = ? AND password = ?", (user.username, user.password))
     row = c.fetchone()
@@ -1017,7 +883,7 @@ async def login(user: UserAuth):
 
 @app.post("/user-action")
 async def store_user_action(action: UserAction):
-    conn = get_db()
+    conn = sqlite3.connect(DB_PATH, timeout=20)
     c = conn.cursor()
     
     c.execute("SELECT id FROM users WHERE username = ?", (action.username,))
@@ -1286,7 +1152,7 @@ async def get_genre_based_recommendations(username: str, limit: int = 18):
     Extract genres from user's liked movies and recommend trending movies in those genres.
     IMPROVED: Analyzes all genres, not just top 3, and prioritizes user preferences
     """
-    conn = get_db()
+    conn = sqlite3.connect(DB_PATH, timeout=20)
     c = conn.cursor()
     
     c.execute("SELECT id FROM users WHERE username = ?", (username,))
@@ -1362,7 +1228,7 @@ async def get_trending_in_user_genres(username: str, limit: int = 12):
     Show what's trending right now in genres the user likes.
     Great for time-sensitive recommendations.
     """
-    conn = get_db()
+    conn = sqlite3.connect(DB_PATH, timeout=20)
     c = conn.cursor()
     
     c.execute("SELECT id FROM users WHERE username = ?", (username,))
@@ -1414,7 +1280,7 @@ async def get_collaborative_recommendations(username: str, limit: int = 12):
     c.execute(f"""
         SELECT user_id, COUNT(*) as common_count FROM user_history 
         WHERE tmdb_id IN ({placeholders})
-        GROUP BY user_id HAVING COUNT(*) >= 2 AND user_id != ?
+        GROUP BY user_id HAVING common_count >= 2 AND user_id != ?
         ORDER BY common_count DESC LIMIT 50
     """, watched_list + [user_id])
     similar_users = [row[0] for row in c.fetchall()]
@@ -1450,7 +1316,7 @@ async def get_user_stats(username: str):
     """
     Get user engagement stats for analytics/profile.
     """
-    conn = get_db()
+    conn = sqlite3.connect(DB_PATH, timeout=20)
     c = conn.cursor()
     
     c.execute("SELECT id FROM users WHERE username = ?", (username,))
@@ -1538,8 +1404,7 @@ async def get_accurate_genre_recommendations(username: str, limit: int = 18):
     if not u_row: return await home(category="trending", limit=limit)
     
     user_id = u_row[0]
-    # PostgreSQL fix for DISTINCT + ORDER BY
-    c.execute("SELECT tmdb_id FROM user_history WHERE user_id = ? GROUP BY tmdb_id ORDER BY MAX(timestamp) DESC", (user_id,))
+    c.execute("SELECT DISTINCT tmdb_id FROM user_history WHERE user_id = ? ORDER BY timestamp DESC", (user_id,))
     all_movie_ids = set(row[0] for row in c.fetchall())
     
     c.execute("SELECT tmdb_id FROM user_history WHERE user_id = ? AND action_type = 'like' ORDER BY timestamp DESC LIMIT 30", (user_id,))
@@ -1640,7 +1505,7 @@ async def get_all_genres():
 # ---------- RATINGS ----------
 @app.post("/rating")
 async def store_rating(action: RatingAction):
-    conn = get_db()
+    conn = sqlite3.connect(DB_PATH, timeout=20)
     c = conn.cursor()
     c.execute("SELECT id FROM users WHERE username = ?", (action.username,))
     row = c.fetchone()
@@ -1665,7 +1530,7 @@ async def store_rating(action: RatingAction):
 # ---------- WATCHLIST ----------
 @app.post("/watchlist/toggle")
 async def toggle_watchlist(action: WatchlistAction):
-    conn = get_db()
+    conn = sqlite3.connect(DB_PATH, timeout=20)
     c = conn.cursor()
     c.execute("SELECT id FROM users WHERE username = ?", (action.username,))
     row = c.fetchone()
@@ -1674,11 +1539,11 @@ async def toggle_watchlist(action: WatchlistAction):
         raise HTTPException(status_code=404, detail="User not found")
     user_id = row[0]
 
-    c.execute("SELECT user_id FROM user_watchlist WHERE user_id = ? AND tmdb_id = ?", (user_id, action.tmdb_id))
+    c.execute("SELECT ROWID FROM user_watchlist WHERE user_id = ? AND tmdb_id = ?", (user_id, action.tmdb_id))
     exists = c.fetchone()
     
     if exists:
-        c.execute("DELETE FROM user_watchlist WHERE user_id = ? AND tmdb_id = ?", (user_id, action.tmdb_id))
+        c.execute("DELETE FROM user_watchlist WHERE ROWID = ?", (exists[0],))
         status = "removed"
     else:
         c.execute("INSERT INTO user_watchlist (user_id, tmdb_id) VALUES (?, ?)", 
@@ -1727,8 +1592,7 @@ async def get_watch_history(username: str):
     if not u_row: return []
         
     user_id = u_row[0]
-    # PostgreSQL fix for DISTINCT + ORDER BY
-    c.execute("SELECT tmdb_id FROM user_history WHERE user_id = ? AND action_type = 'view' GROUP BY tmdb_id ORDER BY MAX(timestamp) DESC LIMIT 20", (user_id,))
+    c.execute("SELECT DISTINCT tmdb_id FROM user_history WHERE user_id = ? AND action_type = 'view' ORDER BY timestamp DESC LIMIT 20", (user_id,))
     history_movies = [row[0] for row in c.fetchall()]
     
     tasks = [tmdb_movie_details(m_id) for m_id in history_movies]
@@ -1745,7 +1609,7 @@ async def get_watch_history(username: str):
 
 @app.get("/trending-custom", response_model=List[TMDBMovieCard])
 async def trending_custom(limit: int = 15):
-    conn = get_db()
+    conn = sqlite3.connect(DB_PATH, timeout=20)
     c = conn.cursor()
     c.execute("SELECT tmdb_id, COUNT(*) as watch_count FROM user_history WHERE action_type='view' GROUP BY tmdb_id ORDER BY watch_count DESC LIMIT ?", (limit,))
     movies = c.fetchall()
@@ -1772,7 +1636,7 @@ async def get_recent_recommendations(username: str, limit: int = 15):
     Finds the VERY LAST movie the user opened and recommends similar titles.
     This provides immediate feedback after opening a movie.
     """
-    conn = get_db()
+    conn = sqlite3.connect(DB_PATH, timeout=20)
     c = conn.cursor()
     c.execute("SELECT id FROM users WHERE username = ?", (username,))
     u_row = c.fetchone()
@@ -1798,7 +1662,7 @@ async def get_recent_recommendations(username: str, limit: int = 15):
 
 @app.get("/rating/{username}/{tmdb_id}")
 async def get_user_rating(username: str, tmdb_id: int):
-    conn = get_db()
+    conn = sqlite3.connect(DB_PATH, timeout=20)
     c = conn.cursor()
     c.execute("SELECT id FROM users WHERE username = ?", (username,))
     u_row = c.fetchone()
@@ -2088,18 +1952,6 @@ async def get_movie_ai_insight(tmdb_id: int, username: str = "guest"):
     Provides a personalized "Cinematic Master's Take" on a specific movie
     based on the user's DNA profile.
     """
-    # 1. CHECK CACHE FIRST
-    try:
-        conn = get_db()
-        c = conn.cursor()
-        c.execute("SELECT insight FROM ai_insight_cache WHERE tmdb_id = ?", (tmdb_id,))
-        row = c.fetchone()
-        if row:
-            conn.close()
-            return {"insight": row[0]}
-    except Exception as e:
-        logging.warning(f"AI Cache read error: {e}")
-
     gemini_key = os.getenv("GEMINI_API_KEY")
     if not gemini_key or "YOUR_GEMINI" in gemini_key:
         return {"insight": "Unlock your personalized Cinematic Master's Take by adding your Gemini API key."}
@@ -2125,18 +1977,7 @@ async def get_movie_ai_insight(tmdb_id: int, username: str = "guest"):
         """
         
         response = await asyncio.to_thread(model.generate_content, prompt)
-        insight = response.text.strip()
-
-        # 2. SAVE TO CACHE
-        try:
-            c.execute("INSERT INTO ai_insight_cache (tmdb_id, insight, timestamp) VALUES (?, ?, ?)",
-                      (tmdb_id, insight, datetime.utcnow().isoformat()))
-            conn.commit()
-            conn.close()
-        except Exception as e:
-            logging.warning(f"AI Cache write error: {e}")
-
-        return {"insight": insight}
+        return {"insight": response.text.strip()}
     except Exception as e:
         logging.error(f"AI Insight Error: {e}")
         return {"insight": "A cinematic mystery remains... (Ensure your API key is valid)"}
@@ -2217,7 +2058,7 @@ async def get_dashboard_bundle(username: str):
     return result
 
 # Mount Static Files (at the end to avoid route conflicts)
-app.mount("/", StaticFiles(directory="frontend", html=True), name="static")
+app.mount("/", StaticFiles(directory="web_ui", html=True), name="static")
 
 if __name__ == "__main__":
     import uvicorn

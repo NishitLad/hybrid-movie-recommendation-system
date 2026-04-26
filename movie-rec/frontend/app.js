@@ -405,36 +405,59 @@ async function openMovieDetails(tmdbId) {
     apiPost('/user-action', { username: currentUser, tmdb_id: tmdbId, action_type: 'view' });
     currentMovieId = tmdbId;
 
-    // 1. Fetch Details & Rating immediately
-    const [details, ratingInfo] = await Promise.all([
+    const [details, ratingInfo, similar] = await Promise.all([
         apiGet(`/movie/id/${tmdbId}`),
-        apiGet(`/rating/${currentUser}/${tmdbId}`)
+        apiGet(`/rating/${currentUser}/${tmdbId}`),
+        apiGet(`/movie/similar/${tmdbId}`)
     ]);
 
-    // 2. SHOW MODAL IMMEDIATELY with details
     hideLoader();
     if(details.data) {
-        renderMovieDetailsModal(details.data, ratingInfo.data);
-        document.getElementById("movie-modal").classList.remove("hide");
+        const d = details.data;
         
-        // 3. LOAD SIMILAR MOVIES IN BACKGROUND
-        const similarCarousel = document.getElementById("modal-similar-carousel");
-        similarCarousel.innerHTML = `<div class="spinner" style="margin:2rem auto; width:30px; height:30px;"></div>`;
+        // Robust data mapping
+        const poster = d.poster_url || 'https://via.placeholder.com/300x450?text=No+Poster';
+        const backdrop = d.backdrop_url ? d.backdrop_url.replace('w500', 'original') : poster;
         
-        apiGet(`/movie/similar/${tmdbId}`).then(similar => {
-            if (similar.data && similar.data.length > 0) {
-                similarCarousel.innerHTML = similar.data.map(m => `
-                    <div class="movie-card" onclick="openMovieDetails(${m.tmdb_id})">
-                        <img src="${m.poster_url || 'https://via.placeholder.com/300x450?text=No+Poster'}" alt="${m.title}">
-                        <div class="card-info">
-                            <h4 class="card-title">${m.title}</h4>
-                        </div>
-                    </div>
-                `).join('');
-            } else {
-                similarCarousel.innerHTML = `<p style="color: var(--text-secondary); padding: 1rem;">No similar titles found.</p>`;
+        document.getElementById("modal-poster").src = poster;
+        document.getElementById("modal-title").textContent = d.title || "Unknown Title";
+        document.getElementById("modal-rating").textContent = (d.vote_average !== undefined && d.vote_average !== null) ? d.vote_average.toFixed(1) : 'N/A';
+        document.getElementById("modal-date").textContent = d.release_date ? d.release_date.split('-')[0] : 'N/A';
+        document.getElementById("modal-overview").textContent = d.overview || "No overview available for this cinematic masterpiece.";
+        
+        // Handle genres safely
+        const genreContainer = document.getElementById("modal-genres");
+        if (d.genres && Array.isArray(d.genres)) {
+            genreContainer.innerHTML = d.genres.map(g => `<span class="genre-tag">${g.name}</span>`).join('');
+        } else {
+            genreContainer.innerHTML = "";
+        }
+        
+        if (ratingInfo && ratingInfo.data) {
+            updateStars(ratingInfo.data.rating || 0);
+            const wlBtn = document.getElementById("modal-watchlist-btn");
+            if (wlBtn) {
+                wlBtn.innerHTML = ratingInfo.data.in_watchlist ? 
+                    '<i class="fas fa-check" style="color: #10b981;"></i> In Watchlist' : 
+                    '<i class="fas fa-bookmark"></i> Watchlist';
             }
-        });
+        }
+
+        // Render Similar Movies
+        const similarCarousel = document.getElementById("modal-similar-carousel");
+        if (similar.data && similar.data.length > 0) {
+            similarCarousel.innerHTML = similar.data.map(m => `
+                <div class="movie-card" onclick="openMovieDetails(${m.tmdb_id})">
+                    <img src="${m.poster_url || 'https://via.placeholder.com/300x450?text=No+Poster'}" alt="${m.title}">
+                    <div class="card-info">
+                        <h4 class="card-title">${m.title}</h4>
+                    </div>
+                </div>
+            `).join('');
+        } else {
+            similarCarousel.innerHTML = `<p style="color: var(--text-secondary); padding: 1rem;">No similar titles found.</p>`;
+        }
+
         // FETCH AI CONTEXTUAL INSIGHT
         const insightEl = document.getElementById("modal-ai-insight");
         if (insightEl) {
@@ -445,33 +468,8 @@ async function openMovieDetails(tmdbId) {
                 }
             });
         }
-    }
-}
-
-// Helper to render basic modal content
-function renderMovieDetailsModal(d, r) {
-    const poster = d.poster_url || 'https://via.placeholder.com/300x450?text=No+Poster';
-    document.getElementById("modal-poster").src = poster;
-    document.getElementById("modal-title").textContent = d.title || "Unknown Title";
-    document.getElementById("modal-rating").textContent = (d.vote_average !== undefined && d.vote_average !== null) ? d.vote_average.toFixed(1) : 'N/A';
-    document.getElementById("modal-date").textContent = d.release_date ? d.release_date.split('-')[0] : 'N/A';
-    document.getElementById("modal-overview").textContent = d.overview || "No overview available for this cinematic masterpiece.";
-    
-    const genreContainer = document.getElementById("modal-genres");
-    if (d.genres && Array.isArray(d.genres)) {
-        genreContainer.innerHTML = d.genres.map(g => `<span class="genre-tag">${g.name}</span>`).join('');
-    } else {
-        genreContainer.innerHTML = "";
-    }
-    
-    if (r) {
-        updateStars(r.rating || 0);
-        const wlBtn = document.getElementById("modal-watchlist-btn");
-        if (wlBtn) {
-            wlBtn.innerHTML = r.in_watchlist ? 
-                '<i class="fas fa-check" style="color: #10b981;"></i> In Watchlist' : 
-                '<i class="fas fa-bookmark"></i> Watchlist';
-        }
+        
+        document.getElementById("movie-modal").classList.remove("hide");
     }
 }
 
