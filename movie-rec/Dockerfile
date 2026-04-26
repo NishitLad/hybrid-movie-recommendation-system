@@ -22,4 +22,6 @@ COPY . .
 EXPOSE 8000
 
 # Run the FastAPI server directly
-CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# We use backend.app.main:app because main.py is in backend/app/
+CMD ["python", "-m", "uvicorn", "backend.app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
